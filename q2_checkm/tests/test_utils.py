@@ -5,7 +5,9 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
+import subprocess
 import unittest
+from unittest.mock import patch
 
 from qiime2.plugin.testing import TestPluginBase
 
@@ -13,6 +15,7 @@ from q2_checkm.utils import (
     _get_plots_per_sample,
     _process_checkm_arg,
     _process_common_input_params,
+    run_command,
 )
 
 
@@ -84,6 +87,47 @@ class TestCheckMUtils(TestPluginBase):
                     "plots_coding": {"samp1": "a", "samp2": "d", "samp3": "e"},
                 }
             )
+
+    @patch("q2_checkm.utils.subprocess.run")
+    @patch("builtins.print")
+    def test_run_command_verbose_true(self, mock_print, mock_subprocess_run):
+        cmd = ["checkm", "lineage_wf", "input", "output"]
+        run_command(cmd, verbose=True)
+
+        mock_subprocess_run.assert_called_once_with(cmd, check=True)
+        self.assertEqual(mock_print.call_count, 4)
+
+    @patch("q2_checkm.utils.subprocess.run")
+    @patch("builtins.print")
+    def test_run_command_verbose_false(self, mock_print, mock_subprocess_run):
+        cmd = ["checkm", "lineage_wf", "input", "output"]
+        run_command(cmd, verbose=False)
+
+        mock_subprocess_run.assert_called_once_with(cmd, check=True)
+        mock_print.assert_not_called()
+
+    @patch("q2_checkm.utils.subprocess.run")
+    def test_run_command_with_env(self, mock_subprocess_run):
+        cmd = ["checkm", "lineage_wf", "input", "output"]
+        env = {"PATH": "/custom/path"}
+        run_command(cmd, env=env, verbose=False)
+
+        mock_subprocess_run.assert_called_once_with(cmd, env=env, check=True)
+
+    @patch("q2_checkm.utils.subprocess.run")
+    def test_run_command_without_env(self, mock_subprocess_run):
+        cmd = ["checkm", "lineage_wf", "input", "output"]
+        run_command(cmd, env=None, verbose=False)
+
+        mock_subprocess_run.assert_called_once_with(cmd, check=True)
+
+    @patch("q2_checkm.utils.subprocess.run")
+    def test_run_command_subprocess_exception(self, mock_subprocess_run):
+        cmd = ["checkm", "lineage_wf", "input", "output"]
+        mock_subprocess_run.side_effect = subprocess.CalledProcessError(1, cmd)
+
+        with self.assertRaises(subprocess.CalledProcessError):
+            run_command(cmd, verbose=False)
 
 
 if __name__ == "__main__":

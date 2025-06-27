@@ -1,22 +1,16 @@
-{% set data = load_setup_py_data() %}
-{% set version = data.get('version') or 'placehold' %}
-
 package:
   name: q2-checkm
-  version: {{ version }}
-
+  version: {{ PLUGIN_VERSION }}
 source:
-  path: ../..
-
+  path: ..
 build:
-  script: |
-    make VERBOSE=1
-    make install
-
+  script: make install
 requirements:
   host:
     - python {{ python }}
     - setuptools
+    - versioningit
+    - wheel
   run:
     - altair <5.0.0
     - dendropy
@@ -25,21 +19,18 @@ requirements:
     - numpy
     - prodigal
     - pysam
-    - python {{ python }}
-    - qiime2 {{ qiime2_epoch }}.*
-    - q2-types {{ qiime2_epoch }}.*
-    - q2templates {{ qiime2_epoch }}.*
-
+    - qiime2 >={{ qiime2 }}
+    - q2-types >={{ q2_types }}
+    - q2templates >={{ q2templates }}
 test:
   requires:
-    - coverage
-    - pytest-cov
+    - parameterized
+    - pytest-xdist
   imports:
     - q2_checkm
     - qiime2.plugins.checkm
   commands:
-    - pytest --cov q2_checkm --pyargs q2_checkm
-
+    - pytest --pyargs q2_checkm -n 4
 about:
   home: https://github.com/bokulich-lab/q2-checkm
   license: BSD-3-Clause

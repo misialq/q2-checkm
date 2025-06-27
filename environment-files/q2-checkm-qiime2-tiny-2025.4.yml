@@ -1,0 +1,19 @@
+channels:
+- https://packages.qiime2.org/qiime2/2025.4/tiny/released
+- conda-forge
+- bioconda
+dependencies:
+  - qiime2-tiny
+  - altair <5.0.0
+  - dendropy
+  - hmmer
+  - matplotlib
+  - numpy
+  - prodigal
+  - pysam
+  - pip
+  - q2-types
+  - q2templates
+  - pip:
+    - checkm-genome
+    - q2-checkm@git+https://github.com/bokulich-lab/q2-checkm.git@main

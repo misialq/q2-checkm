@@ -130,3 +130,4 @@ dmypy.json
 
 # PyCharm configuration
 .idea/
+_version.py

@@ -82,7 +82,7 @@ def _process_checkm_arg(arg_key, arg_val):
 
 
 def _get_plots_per_sample(
-    all_plots: Mapping[str, Mapping[str, str]]
+    all_plots: Mapping[str, Mapping[str, str]],
 ) -> Dict[str, Dict[str, str]]:
     """Converts mapping of different plot types-to-samples-to-plot paths into
         a new mapping of samples-to-plot types-to-plot paths.

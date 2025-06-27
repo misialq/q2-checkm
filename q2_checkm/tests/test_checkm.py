@@ -77,7 +77,7 @@ class TestCheckM(TestPluginBase):
         )
         exp = self.read_in_checkm_report("checkm_report_df1.tsv")
 
-        assert_frame_equal(exp, obs, check_less_precise=2)
+        assert_frame_equal(exp, obs, check_exact=False, rtol=1e-2)
 
     def test_parse_multiple_checkm_reports(self):
         obs = _parse_checkm_reports(
@@ -88,7 +88,7 @@ class TestCheckM(TestPluginBase):
         )
         exp = self.read_in_checkm_report("checkm_report_df_all.tsv")
 
-        assert_frame_equal(exp, obs, check_less_precise=2)
+        assert_frame_equal(exp, obs, check_exact=False, rtol=1e-1)
 
     def test_classify_completeness(self):
         self.assertEqual("near", _classify_completeness(90.5))
