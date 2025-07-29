@@ -5,12 +5,7 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
-from .checkm import evaluate_bins
-from .checkm2 import quality_control
 
-try:
-    from ._version import __version__
-except ModuleNotFoundError:
-    __version__ = "0.0.0+notfound"
+from qiime2.plugin import SemanticType
 
-__all__ = ["evaluate_bins", "quality_control"]
+CheckM2Results = SemanticType('CheckM2Results') 

@@ -9,9 +9,23 @@ from q2_types.per_sample_sequences import MAGs
 from q2_types.sample_data import SampleData
 from qiime2.core.type import Bool, Float, Int, Range, Str
 from qiime2.plugin import Citations, Plugin
+import pandas as pd
+import qiime2
 
 import q2_checkm
 from q2_checkm import __version__
+from q2_checkm.checkm2 import (
+    CheckM2Results,
+    CheckM2ResultsFormat,
+    CheckM2ResultsDirectoryFormat,
+    quality_control
+)
+from q2_checkm.checkm2._transformers import (
+    _checkm2_results_format_to_dataframe,
+    _dataframe_to_checkm2_results_format,
+    _checkm2_results_directory_to_dataframe,
+    _checkm2_results_to_metadata
+)
 
 citations = Citations.load("citations.bib", package="q2_checkm")
 
@@ -70,6 +84,88 @@ checkm_param_descriptions = {
 }
 # fmt: on
 
+# Register CheckM2 semantic types and formats
+plugin.register_semantic_types(CheckM2Results)
+plugin.register_formats(CheckM2ResultsFormat, CheckM2ResultsDirectoryFormat)
+plugin.register_semantic_type_to_format(
+    CheckM2Results,
+    artifact_format=CheckM2ResultsDirectoryFormat
+)
+
+# Register CheckM2 transformers
+plugin.register_transformer(
+    _checkm2_results_format_to_dataframe,
+    inputs=(CheckM2ResultsFormat,),
+    outputs=(pd.DataFrame,)
+)
+plugin.register_transformer(
+    _dataframe_to_checkm2_results_format,
+    inputs=(pd.DataFrame,),
+    outputs=(CheckM2ResultsFormat,)
+)
+plugin.register_transformer(
+    _checkm2_results_directory_to_dataframe,
+    inputs=(CheckM2ResultsDirectoryFormat,),
+    outputs=(pd.DataFrame,)
+)
+plugin.register_transformer(
+    _checkm2_results_to_metadata,
+    inputs=(CheckM2ResultsDirectoryFormat,),
+    outputs=(qiime2.Metadata,)
+)
+
+# CheckM2 parameters
+checkm2_params = {
+    "database_path": Str,
+    "threads": Int % Range(1, None),
+    "force_model": Str,
+    "lowmem": Bool,
+    "genes": Bool,
+    "extension": Str,
+}
+
+checkm2_param_descriptions = {
+    "database_path": "Path to the CheckM2 database. If not provided, uses the "
+                     "default database location or CHECKM2DB environment variable.",
+    "threads": "Number of threads to use for processing. Default: 1.",
+    "force_model": "Force the use of a specific completeness model ('specific' "
+                   "or 'general'). If not provided, CheckM2 will automatically "
+                   "select the appropriate model.",
+    "lowmem": "Use low memory mode to reduce DIAMOND RAM usage by half at the "
+              "expense of longer runtime.",
+    "genes": "Indicates if the input files contain predicted protein sequences "
+             "(genes) rather than nucleotide sequences.",
+    "extension": "File extension of the input files. Default: 'fasta'.",
+}
+
+# Register CheckM2 action
+plugin.methods.register_function(
+    function=quality_control,
+    inputs={
+        "bins": SampleData[MAGs],
+    },
+    parameters=checkm2_params,
+    outputs=[
+        ("quality_report", CheckM2Results),
+    ],
+    input_descriptions={
+        "bins": "MAGs to be analyzed for quality assessment.",
+    },
+    parameter_descriptions=checkm2_param_descriptions,
+    output_descriptions={
+        "quality_report": "CheckM2 quality assessment results containing "
+                          "completeness and contamination estimates.",
+    },
+    name="Assess genome quality using CheckM2",
+    description="This method uses CheckM2 to predict the completeness and "
+                "contamination of metagenome-assembled genomes (MAGs) using "
+                "machine learning models.",
+    citations=[
+        citations["parks2015b"],  # CheckM citation as foundation
+    ],
+)
+
+# Register original CheckM visualizer
 plugin.visualizers.register_function(
     function=q2_checkm.evaluate_bins,
     inputs={

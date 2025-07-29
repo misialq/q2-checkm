@@ -5,12 +5,14 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
-from .checkm import evaluate_bins
-from .checkm2 import quality_control
 
-try:
-    from ._version import __version__
-except ModuleNotFoundError:
-    __version__ = "0.0.0+notfound"
+from ._methods import quality_control
+from ._types import CheckM2Results
+from ._formats import CheckM2ResultsFormat, CheckM2ResultsDirectoryFormat
 
-__all__ = ["evaluate_bins", "quality_control"]
+__all__ = [
+    "quality_control",
+    "CheckM2Results", 
+    "CheckM2ResultsFormat",
+    "CheckM2ResultsDirectoryFormat"
+] 

@@ -1,0 +1,4 @@
+Name	Completeness	Contamination	Completeness_Model_Used	Translation_Table_Used	Coding_Density	Contig_N50	Average_Gene_Length	Genome_Size	GC_Content	Total_Coding_Sequences	Additional_Notes
+bin1	95.23	2.15	specific	11	0.89	12345	874	2456789	0.42	2801	
+bin2	87.65	4.32	general	11	0.91	8765	892	1987654	0.38	2234	
+bin3	99.12	0.87	specific	11	0.88	23456	856	3456789	0.45	3856	
